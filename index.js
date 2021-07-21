@@ -24,7 +24,7 @@ netServer.listen(8124);
 app.get('/', (req, res) => {
     res.send(`App Running....`);
 });
-app.use(express.static(__dirname + '/static'));
+app.use(express.static(__dirname + '/public'));
 
 // client side socket events
 io.on('connection', (socket) => {
