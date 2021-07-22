@@ -2,8 +2,9 @@ require('dotenv').config({ path: './config/.env' });
 
 const express = require('express');
 const net = require('net');
-const listener = require('./controllers/listener');
 const { MongoClient } = require('mongodb');
+const listener = require('./controllers/listener');
+const logger = require('./log/logger');
 
 const app = express();
 const server = require("http").Server(app);
@@ -38,9 +39,8 @@ async function initMongo() {
         });
         // the following code examples can be pasted here...
         console.log('Create collection');
-        client.close()
     } catch (error) {
-        console.error(error);
+        logger.error(error);
         process.exit(1);
     } finally {
         client.close()
@@ -61,11 +61,9 @@ const netServer = net.createServer((client) => {
             let response = await listener(data);
             emitMessage(response);
         } catch (error) {
-            console.error(error);
+            logger.error(error);
         }
     })
-
-    client.write('hello\r\n');
 });
 
 netServer.listen(process.env.SOCKET_PORT);

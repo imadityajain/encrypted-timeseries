@@ -54,7 +54,7 @@ async function decodePayloadAndStore(payload) {
         }
         return Promise.resolve({ insertedMessages, successRate: `${(insertedMessages.length/10)*100} %` });   
     } catch (error) {
-        console.error(error);
+        return Promise.reject(error);
     } finally {
         client.close()
     }
