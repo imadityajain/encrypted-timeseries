@@ -9,9 +9,12 @@
     "mongodb": "^4.0.1",
     "socket.io": "^4.1.3"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "nodemon": "^2.0.12"
+  },
   "scripts": {
-    "start": "node index.js",
+    "serve": "node index.js",
+    "start": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Aditya Jain",
