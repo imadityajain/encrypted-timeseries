@@ -1,9 +1,9 @@
+require('dotenv').config({ path: './config/.env' });
+
 const express = require('express');
 const net = require('net');
 const listener = require('./controllers/listener');
 const { MongoClient } = require('mongodb');
-
-require('dotenv').config({ path: './config/.env' });
 
 const app = express();
 const server = require("http").Server(app);
@@ -24,7 +24,7 @@ async function initMongo() {
         const collections = await client.db().listCollections().toArray();
         const collectionNames = collections.map(c => c.name).filter(n => n === "message");
 
-        if(collectionNames.length > 0) {
+        if (collectionNames.length > 0) {
             console.log('Found Collection');
             return;
         }
@@ -56,8 +56,13 @@ const netServer = net.createServer((client) => {
         console.log('Emitter disconnected');
     });
 
-    client.on('data', function (data) {
-        listener(data);
+    client.on('data', async function (data) {
+        try {
+            let response = await listener(data);
+            emitMessage(response);
+        } catch (error) {
+            console.error(error);
+        }
     })
 
     client.write('hello\r\n');
@@ -66,12 +71,18 @@ const netServer = net.createServer((client) => {
 netServer.listen(process.env.SOCKET_PORT);
 
 app.get('/', (req, res) => {
-    res.send(`App Running....`);
+    res.sendFile(`${__dirname}/public/index.html`);
 });
+
 app.use(express.static(__dirname + '/public'));
 
 // client side socket events
-io.on('connection', (socket) => {
-    //socket.emit();
+io.on('connection', function (socket) {
+    socket.emit('data', { message: 'Starting Process' });
 });
+
+function emitMessage(data) {
+    io.sockets.volatile.emit('data', data);
+}
+
 server.listen(process.env.PORT);

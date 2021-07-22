@@ -9,6 +9,7 @@ async function decodePayloadAndStore(payload) {
 
         payload = payload.toString('utf8');
         const hashs = payload.split('|');
+        const insertedMessages = [];
 
         for (const hash of hashs) {
 
@@ -22,15 +23,13 @@ async function decodePayloadAndStore(payload) {
             };
             if (convertHash(JSON.stringify(message)) !== secret_key) {
                 console.log('Data not matched');
-                return;
+                continue;
             }
 
-            if (source === destination) {
+            if(origin === destination) {
                 console.log('Invalid data');
-                return;
+                continue;
             }
-
-            console.log(message);
 
             await client.connect();
             const db = client.db(dbName);
@@ -51,7 +50,9 @@ async function decodePayloadAndStore(payload) {
             //         $inc: { nsamples: 1 }
             //     },
             //     { upsert: true });
+            insertedMessages.push(message);
         }
+        return Promise.resolve({ insertedMessages, successRate: `${(insertedMessages.length/10)*100} %` });   
     } catch (error) {
         console.error(error);
     } finally {

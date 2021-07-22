@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+    <head>
+        <script src='/socket.io/socket.io.js'></script>
+        <script>
+            var socket = io();
+
+            socket.on('news', function(data) {
+                addMessage(data);
+            });
+          
+            function addMessage(message) {
+                var text = document.createTextNode(JSON.stringify(message)),
+                    el = document.createElement('li'),
+                    messages = document.getElementById('messages');
+
+                el.appendChild(text);
+                messages.appendChild(el);
+            }
+        </script>
+    </head>
+    <body>
+        <ul id='messages'></ul>
+    </body>
+</html>
