@@ -3,13 +3,15 @@ const net = require('net');
 const listener = require('./controllers/listener');
 const { MongoClient } = require('mongodb');
 
+require('dotenv').config({ path: './config/.env' });
+
 const app = express();
 const server = require("http").Server(app);
 const io = require("socket.io")(server);
 
-const url = "mongodb://localhost:27017/messageDB";
+const url = process.env.MONGO_URL;
 const client = new MongoClient(url)
-const dbName = 'messageDB'
+const dbName = process.env.MONGO_DBNAME;
 
 //make client connect 
 async function initMongo() {
@@ -30,7 +32,8 @@ async function initMongo() {
         await db.createCollection("message", {
             timeseries: {
                 timeField: "ts",
-                granularity: "minutes",
+                metaField: "name",
+                granularity: "seconds",
             }
         });
         // the following code examples can be pasted here...
@@ -38,6 +41,7 @@ async function initMongo() {
         client.close()
     } catch (error) {
         console.error(error);
+        process.exit(1);
     } finally {
         client.close()
     }
@@ -59,7 +63,7 @@ const netServer = net.createServer((client) => {
     client.write('hello\r\n');
 });
 
-netServer.listen(8124);
+netServer.listen(process.env.SOCKET_PORT);
 
 app.get('/', (req, res) => {
     res.send(`App Running....`);
@@ -70,4 +74,4 @@ app.use(express.static(__dirname + '/public'));
 io.on('connection', (socket) => {
     //socket.emit();
 });
-server.listen(8081);
+server.listen(process.env.PORT);

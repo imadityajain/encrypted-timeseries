@@ -1,9 +1,8 @@
 const { decrypt, convertHash } = require('./../utility/encryptionalgo');
 const { MongoClient } = require('mongodb');
 
-const url = "mongodb://localhost:27017/messageDB";
-const client = new MongoClient(url);
-const dbName = 'messageDB';
+const client = new MongoClient(process.env.MONGO_URL);
+const dbName = process.env.MONGO_DBNAME;
 
 async function decodePayloadAndStore(payload) {
     try {
